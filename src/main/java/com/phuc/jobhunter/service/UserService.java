@@ -1,11 +1,15 @@
 package com.phuc.jobhunter.service;
 
 import com.phuc.jobhunter.domain.User;
+import com.phuc.jobhunter.domain.dto.Meta;
+import com.phuc.jobhunter.domain.dto.ResultPaginationDTO;
 import com.phuc.jobhunter.util.error.IdInvalidException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.phuc.jobhunter.repository.UserRepository;
 
-import java.util.List;
+
 
 @Service
 public class UserService {
@@ -24,8 +28,20 @@ public class UserService {
                 .orElseThrow(() -> new IdInvalidException("Không tìm thấy user với ID: " + id));
     }
 
-    public List<User> getAllUser(){
-        return userRepository.findAll();
+    public ResultPaginationDTO getAllUser(Pageable pageable){
+        Page<User> pageUser= this.userRepository.findAll(pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+
+        Meta mt = new Meta();
+        mt.setPage(pageUser.getNumber());
+        mt.setPageSize(pageUser.getSize());
+        mt.setPages(pageUser.getTotalPages());
+        mt.setTotal(pageUser.getTotalElements());
+
+        rs.setMeta(mt);
+        rs.setResult(pageUser.getContent());
+
+        return rs;
     }
 
     public User createUser(User newUser){

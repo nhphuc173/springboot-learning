@@ -1,6 +1,9 @@
 package com.phuc.jobhunter.controller;
 
 import com.phuc.jobhunter.domain.User;
+import com.phuc.jobhunter.domain.dto.ResultPaginationDTO;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.phuc.jobhunter.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -40,8 +44,16 @@ public class UserController {
 
     }
     @GetMapping("/allusers")
-    public ResponseEntity<List<User>> getAllUser(){
-        List<User> listUser = userService.getAllUser();
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
+            @RequestParam("current") Optional<String> currentOptional,
+            @RequestParam("pageSize") Optional<String> pageSizeOptional
+            ){
+
+        String sCurrent = currentOptional.isPresent() ? currentOptional.get() : "";
+        String sPageSize = pageSizeOptional.isPresent() ? pageSizeOptional.get() : "";
+
+        Pageable pageable = PageRequest.of(Integer.parseInt(sCurrent) -1, Integer.parseInt(sPageSize));
+        ResultPaginationDTO listUser = userService.getAllUser(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(listUser);
     }
 

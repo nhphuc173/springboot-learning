@@ -1,6 +1,8 @@
 package com.phuc.jobhunter.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.phuc.jobhunter.util.SecurityUtil;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -18,10 +20,32 @@ public class Company {
     private String description;
     private String address;
     private String logo;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+ 7")
     private Instant createAt;
     private Instant updateAt;
     private String createBy;
     private String updateBy;
+
+
+    @PrePersist
+    public void handleBeforeCreate(){
+        this.createBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        this.createAt= Instant.now();
+
+    }
+
+    @PreUpdate
+    public void  handleBeforeUpdate(){
+        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        this.updateAt = Instant.now();
+    }
 
 
     public long getId() {

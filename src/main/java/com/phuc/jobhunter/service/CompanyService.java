@@ -3,9 +3,11 @@ package com.phuc.jobhunter.service;
 import com.phuc.jobhunter.domain.Company;
 import com.phuc.jobhunter.repository.CompanyRepository;
 import com.phuc.jobhunter.util.error.IdInvalidException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class CompanyService {
                 .orElseThrow(() -> new IdInvalidException("Không tìm thấy company với ID: " + id));
     }
 
+
     public List<Company> getAllCompany(){
         return companyRepository.findAll();
 
@@ -45,7 +48,7 @@ public class CompanyService {
     }
 
 
-    public void deleteCompany(Long id){
+    public void deleteCompany( Long id){
         companyRepository.deleteById(id);
     }
 
