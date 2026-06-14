@@ -30,7 +30,7 @@ public class Company {
 
     @PrePersist
     public void handleBeforeCreate(){
-        this.createBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+        this.createBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 
@@ -40,7 +40,7 @@ public class Company {
 
     @PreUpdate
     public void  handleBeforeUpdate(){
-        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 

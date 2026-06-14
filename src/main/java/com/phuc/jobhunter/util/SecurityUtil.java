@@ -1,5 +1,6 @@
 package com.phuc.jobhunter.util;
 
+import com.phuc.jobhunter.domain.dto.ResLoginDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -25,19 +28,46 @@ public class SecurityUtil {
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
 
+    @Value("${huuphuc.jwt.access-token-validity-in-seconds}")
+    private long accessTokenExpiration;
 
-    @Value("${huuphuc.jwt.token-validty-in-seconds}")
-    private long jwtExpiration;
+    @Value("${huuphuc.jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
 
-    public String createToken(Authentication authentication){
+    //create token access
+    public String createAccessToken(Authentication authentication, ResLoginDTO.UserLogin dto){
         Instant now = Instant.now();
-        Instant validity = now.plus(this.jwtExpiration, ChronoUnit.SECONDS);
+        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
+        // hardcode permission (for testing)
+        List<String> listAuthority = new ArrayList<>();
+
+        listAuthority.add("ROLE_USER_CREATE");
+        listAuthority.add("ROLE_USER_UPDATE");
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(authentication.getName())
-                .claim("huuphuc", authentication)
+                .claim("user", dto)
+                .claim("psermission", listAuthority)
+                .build();
+
+        JwsHeader jwsHeader= JwsHeader.with(JWT_ALGORITHM).build();
+
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+
+    }
+
+    public String createRefreshToken(String email, ResLoginDTO dto){
+        Instant now = Instant.now();
+        Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS);
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .expiresAt(validity)
+                .subject(email)
+                .claim("user", dto.getUser())
                 .build();
 
         JwsHeader jwsHeader= JwsHeader.with(JWT_ALGORITHM).build();
@@ -70,21 +100,21 @@ public class SecurityUtil {
         return null;
     }
 
+
+    /**
+     * Get the JWT of the current user.
+     *
+     * @return the JWT of the current user.
+     */
+    public static Optional<String> getCurrentUserJWT() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(securityContext.getAuthentication())
+                .filter(authentication -> authentication.getCredentials() instanceof String)
+                .map(authentication -> (String) authentication.getCredentials());
+    }
 //
-//    /**
-//     * Get the JWT of the current user.
-//     *
-//     * @return the JWT of the current user.
-//     */
-//    public static Optional<String> getCurrentUserJWT() {
-//        SecurityContext securityContext = SecurityContextHolder.getContext();
-//        return Optional.ofNullable(securityContext.getAuthentication())
-//                .filter(authentication -> authentication.getCredentials() instanceof String)
-//                .map(authentication -> (String) authentication.getCredentials());
-//    }
-//
-//    /**
-//     * Check if a user is authenticated.
+//    /**getCredentials
+//     * Check if a user is authenticated.authenticated
 //     *
 //     * @return true if the user is authenticated, false otherwise.
 //     */

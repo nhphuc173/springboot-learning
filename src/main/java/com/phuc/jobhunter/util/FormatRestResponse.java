@@ -1,6 +1,7 @@
 package com.phuc.jobhunter.util;
 
 import com.phuc.jobhunter.domain.RestResponse;
+import com.phuc.jobhunter.util.annotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -38,7 +39,8 @@ public class FormatRestResponse implements ResponseBodyAdvice{
         }else{
             //case success
             res.setData(body);
-            res.setMessage("call api success");
+            ApiMessage apiMessage= returnType.getMethodAnnotation(ApiMessage.class);
+            res.setMessage(apiMessage!= null ? apiMessage.value() : "call api success");
         }
 
         return res;

@@ -68,7 +68,7 @@ public class SecurityConfiguration {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
         grantedAuthoritiesConverter.setAuthorityPrefix("");                    // Không thêm prefix ROLE_
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("huuphuc");  // Tên claim chứa authorities
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");  // Tên claim chứa authorities
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
